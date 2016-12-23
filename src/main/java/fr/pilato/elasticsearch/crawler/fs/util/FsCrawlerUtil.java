@@ -255,7 +255,7 @@ public class FsCrawlerUtil extends MetaParser {
         }
 
         for (String include : includes) {
-            String regex = include.replace("?", ".?").replace("*", ".*?");
+            String regex = include;//.replace("?", ".?").replace("*", ".*?");
             logger.trace("regex is [{}]", regex);
             if (filename.matches(regex)) {
                 logger.trace("does match include regex");
