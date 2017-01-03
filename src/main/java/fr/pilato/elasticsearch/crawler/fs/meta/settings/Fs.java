@@ -26,6 +26,7 @@ public class Fs {
     private String url;
     private TimeValue updateRate;
     private List<String> includes;
+    private List<String> includesDir;
     private List<String> excludes;
     private boolean jsonSupport;
     private boolean filenameAsId;
@@ -51,6 +52,7 @@ public class Fs {
         private TimeValue updateRate = TimeValue.timeValueMinutes(15);
         private List<String> includes = null;
         private List<String> excludes = null;
+        private List<String> includesDir = null;
         private boolean jsonSupport = false;
         private boolean filenameAsId = false;
         private boolean addFilesize = true;
@@ -86,6 +88,24 @@ public class Fs {
             // We refuse to add duplicates
             if (!this.includes.contains(include)) {
                 this.includes.add(include);
+            }
+
+            return this;
+        }
+        
+        public Builder setIncludesDir(List<String> includes) {
+            this.includesDir = includes;
+            return this;
+        }
+
+        public Builder addIncludeDir(String include) {
+            if (this.includesDir == null) {
+                this.includesDir = new ArrayList<>();
+            }
+
+            // We refuse to add duplicates
+            if (!this.includesDir.contains(include)) {
+                this.includesDir.add(include);
             }
 
             return this;
@@ -167,7 +187,7 @@ public class Fs {
         public Fs build() {
             return new Fs(url, updateRate, includes, excludes, jsonSupport, filenameAsId, addFilesize,
                     removeDeleted, storeSource, indexedChars, indexContent, attributesSupport, rawMetadata,
-                    checksum, xmlSupport);
+                    checksum, xmlSupport,includesDir);
         }
     }
 
@@ -177,10 +197,11 @@ public class Fs {
 
     Fs(String url, TimeValue updateRate, List<String> includes, List<String> excludes, boolean jsonSupport,
        boolean filenameAsId, boolean addFilesize, boolean removeDeleted, boolean storeSource, Percentage indexedChars,
-       boolean indexContent, boolean attributesSupport, boolean rawMetadata, String checksum, boolean xmlSupport) {
+       boolean indexContent, boolean attributesSupport, boolean rawMetadata, String checksum, boolean xmlSupport,List<String> includesDir) {
         this.url = url;
         this.updateRate = updateRate;
         this.includes = includes;
+        this.includesDir = includesDir;
         this.excludes = excludes;
         this.jsonSupport = jsonSupport;
         this.filenameAsId = filenameAsId;
@@ -359,4 +380,12 @@ public class Fs {
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
         return result;
     }
+
+	public List<String> getIncludesDir() {
+		return includesDir;
+	}
+
+	public void setIncludesDir(List<String> includesDir) {
+		this.includesDir = includesDir;
+	}
 }

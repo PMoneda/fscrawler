@@ -60,7 +60,8 @@ public class FsCrawlerValidator {
         // Checking protocol
         if (settings.getServer() != null) {
             if (!PROTOCOL.LOCAL.equals(settings.getServer().getProtocol()) &&
-                    !PROTOCOL.SSH.equals(settings.getServer().getProtocol())) {
+            		!PROTOCOL.SVN.equals(settings.getServer().getProtocol()) &&
+                    	!PROTOCOL.SSH.equals(settings.getServer().getProtocol())) {
                 // Non supported protocol
                 logger.error(settings.getServer().getProtocol() + " is not supported yet. Please use " +
                         PROTOCOL.LOCAL + " or " + PROTOCOL.SSH + ". Disabling crawler");

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package fr.pilato.elasticsearch.crawler.fs.fileabstractor;
+package fr.pilato.elasticsearch.crawler.fs.fileabstractor; 
 
 import fr.pilato.elasticsearch.crawler.fs.meta.settings.FsSettings;
 import org.apache.logging.log4j.LogManager;

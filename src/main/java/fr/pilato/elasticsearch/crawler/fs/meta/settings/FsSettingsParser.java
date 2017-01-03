@@ -31,6 +31,7 @@ public class FsSettingsParser extends MetaParser {
     }
 
     public static FsSettings fromJson(String json) throws IOException {
-        return prettyMapper.readValue(json, FsSettings.class);
+        FsSettings s = prettyMapper.readValue(json, FsSettings.class); 
+    	return s;
     }
 }

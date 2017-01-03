@@ -28,6 +28,7 @@ import fr.pilato.elasticsearch.crawler.fs.fileabstractor.FileAbstractModel;
 import fr.pilato.elasticsearch.crawler.fs.fileabstractor.FileAbstractor;
 import fr.pilato.elasticsearch.crawler.fs.fileabstractor.FileAbstractorFile;
 import fr.pilato.elasticsearch.crawler.fs.fileabstractor.FileAbstractorSSH;
+import fr.pilato.elasticsearch.crawler.fs.fileabstractor.FileAbstractorSVN;
 import fr.pilato.elasticsearch.crawler.fs.meta.doc.Attributes;
 import fr.pilato.elasticsearch.crawler.fs.meta.doc.Doc;
 import fr.pilato.elasticsearch.crawler.fs.meta.doc.DocParser;
@@ -38,6 +39,8 @@ import fr.pilato.elasticsearch.crawler.fs.meta.settings.FsSettings;
 import fr.pilato.elasticsearch.crawler.fs.meta.settings.FsSettingsFileHandler;
 import fr.pilato.elasticsearch.crawler.fs.tika.XmlDocParser;
 import fr.pilato.elasticsearch.crawler.fs.util.FsCrawlerUtil;
+
+import org.apache.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,6 +74,7 @@ public class FsCrawlerImpl {
     public static final class PROTOCOL {
         public static final String LOCAL = "local";
         public static final String SSH = "ssh";
+        public static final String SVN = "svn";
         public static final int SSH_PORT = 22;
     }
 
@@ -356,12 +360,15 @@ public class FsCrawlerImpl {
 
         private FileAbstractor buildFileAbstractor() throws Exception {
             // What is the protocol used?
-            if (fsSettings.getServer() == null || PROTOCOL.LOCAL.equals(fsSettings.getServer().getProtocol())) {
+        	
+        	if (fsSettings.getServer() == null || PROTOCOL.LOCAL.equals(fsSettings.getServer().getProtocol())) {
                 // Local FS
                 return new FileAbstractorFile(fsSettings);
             } else if (PROTOCOL.SSH.equals(fsSettings.getServer().getProtocol())) {
                 // Remote SSH FS
                 return new FileAbstractorSSH(fsSettings);
+            }else if(PROTOCOL.SVN.equals(fsSettings.getServer().getProtocol())){
+            	return new FileAbstractorSVN(fsSettings);
             }
 
             // Non supported protocol
@@ -408,8 +415,15 @@ public class FsCrawlerImpl {
                         } else if (child.directory) {
                             logger.debug("  - folder: {}", filename);
                             fsFolders.add(filename);
-                            indexDirectory(stats, filename, child.fullpath.concat(File.separator));
-                            addFilesRecursively(path, child.fullpath.concat(File.separator), lastScanDate);
+                            if (fsSettings.getServer() != null && PROTOCOL.SVN.equals(fsSettings.getServer().getProtocol())){
+                            	indexDirectory(stats, filename, child.fullpath);
+                            	String newPath = (filepath +"/" + child.path).replaceAll("//", "/");
+                                addFilesRecursively(path, newPath, lastScanDate);
+                            }else{
+                            	indexDirectory(stats, filename, child.fullpath.concat(File.separator));
+                                addFilesRecursively(path, child.path.concat(File.separator), lastScanDate);
+                            }
+                            
                         } else {
                             logger.debug("  - other: {}", filename);
                             logger.debug("Not a file nor a dir. Skipping {}", child.fullpath);
@@ -653,12 +667,26 @@ public class FsCrawlerImpl {
          */
         private void indexDirectory(ScanStatistic stats, String filename, String filepath)
                 throws Exception {
-            indexDirectory(SignTool.sign(filepath),
-                    filename,
-                    stats.getRootPathId(),
-                    FsCrawlerUtil.computeVirtualPathName(stats,
-                            filepath.substring(0, filepath.lastIndexOf(File.separator))),
-                    SignTool.sign(filepath.substring(0, filepath.lastIndexOf(File.separator))));
+            if(isSVN()){
+            	indexDirectory(SignTool.sign(filepath),
+                        filename,
+                        stats.getRootPathId(),
+                        FsCrawlerUtil.computeVirtualPathName(stats,
+                                filepath),
+                        SignTool.sign(filepath));
+            }else{
+            	indexDirectory(SignTool.sign(filepath),
+                        filename,
+                        stats.getRootPathId(),
+                        FsCrawlerUtil.computeVirtualPathName(stats,
+                                filepath.substring(0, filepath.lastIndexOf(File.separator))),
+                        SignTool.sign(filepath.substring(0, filepath.lastIndexOf(File.separator))));
+            }
+        	
+        }
+        
+        private boolean isSVN(){
+        	return fsSettings.getServer() != null &&  PROTOCOL.SVN.equals(fsSettings.getServer().getProtocol());
         }
 
         /**
