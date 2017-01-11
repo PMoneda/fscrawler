@@ -44,23 +44,20 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 		FileAbstractModel m = new FileAbstractModel();
 		m.directory = entry.getKind() == SVNNodeKind.DIR;
 		m.file = !m.directory;
-		try {
-			if(m.directory){
-				//m.path = (repository.getFullPath(path) + repository.getRepositoryPath(entry.getRelativePath()) + "/").replaceAll("//", "/");				
-				m.fullpath = repository.getRepositoryPath(entry.getRelativePath()) + "/";
-				
-			}else{
-				//m.path = (repository.getFullPath(path) + repository.getRepositoryPath(entry.getRelativePath())).replaceAll("//", "/");
-				m.fullpath = repository.getRepositoryPath(entry.getRelativePath());				
-			}
-			m.path =  entry.getName().replaceAll("//", "/");
-		} catch (SVNException e) {
+		try {			
+			m.fullpath = path;
+			m.path =  path;
+		} catch (Exception e) {
 			logger.error(e.getLocalizedMessage());
 			return new FileAbstractModel();
 		}		
 		m.name = entry.getName();
 		m.owner = entry.getAuthor();
-		m.lastModifiedDate = entry.getDate().toInstant();
+		try{
+			m.lastModifiedDate = entry.getDate().toInstant();
+		}catch(Exception e){
+			
+		}
 		m.size = entry.getSize();
 		return m;
 	}
@@ -88,19 +85,19 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	            logger.info(p);
 	            if(entry.getKind() == SVNNodeKind.DIR){
 	            	if(FsCrawlerUtil.isIndexable(p, fsSettings.getFs().getIncludesDir(), fsSettings.getFs().getExcludes())){
-	            		logger.info("------------------------------------------");
-	            		logger.info("Diretorio para indexar");
-	            		logger.info(entry.getName());
-	            		logger.info("------------------------------------------");
-	            		files.add(toFileAbstractModel(path, entry));
+	            		//logger.info("------------------------------------------");
+	            		logger.info("Diretorio indexado");
+	            		//logger.info(entry.getName());
+	            		//logger.info("------------------------------------------");
+	            		files.add(toFileAbstractModel(p, entry));
 	            	}
 	            }else{
 	            	if(FsCrawlerUtil.isIndexable(p, fsSettings.getFs().getIncludes(), fsSettings.getFs().getExcludes())){
-	            		logger.info("------------------------------------------");
-	            		logger.info("Arquivo para indexar");
-	            		logger.info(entry.getName());
-	            		logger.info("------------------------------------------");
-	            		files.add(toFileAbstractModel(path, entry));
+	            		//logger.info("------------------------------------------");
+	            		logger.info("Arquivo indexado");
+	            		//logger.info(entry.getName());
+	            		//logger.info("------------------------------------------");
+	            		files.add(toFileAbstractModel(p, entry));
 	            	}
 	            }
 	        	

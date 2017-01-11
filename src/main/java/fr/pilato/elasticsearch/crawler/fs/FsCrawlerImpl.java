@@ -417,7 +417,7 @@ public class FsCrawlerImpl {
                             fsFolders.add(filename);
                             if (fsSettings.getServer() != null && PROTOCOL.SVN.equals(fsSettings.getServer().getProtocol())){
                             	indexDirectory(stats, filename, child.fullpath);
-                            	String newPath = (filepath +"/" + child.path).replaceAll("//", "/");
+                            	String newPath = child.path.replaceAll("//", "/");
                                 addFilesRecursively(path, newPath, lastScanDate);
                             }else{
                             	indexDirectory(stats, filename, child.fullpath.concat(File.separator));
