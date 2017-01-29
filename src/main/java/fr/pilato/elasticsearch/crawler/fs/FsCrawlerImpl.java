@@ -585,7 +585,12 @@ public class FsCrawlerImpl {
                 doc.getFile().setFilename(filename);
                 doc.getFile().setLastModified(lastmodified);
                 doc.getFile().setIndexingDate(Instant.now());
-                doc.getFile().setUrl("file://" + (new File(filepath, filename)).toString());
+                if(fsSettings.getServer().getProtocol().equals(PROTOCOL.SVN)){
+                	doc.getFile().setUrl(fsSettings.getServer().getHostname() + (new File(filepath, filename)).toString());
+                }else{
+                	doc.getFile().setUrl("file://" + (new File(filepath, filename)).toString());
+                }
+                
                 if (fsSettings.getFs().isAddFilesize()) {
                     doc.getFile().setFilesize(size);
                 }
