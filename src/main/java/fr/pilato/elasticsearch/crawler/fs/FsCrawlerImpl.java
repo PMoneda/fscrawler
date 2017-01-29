@@ -379,7 +379,9 @@ public class FsCrawlerImpl {
 
         private void addFilesRecursively(FileAbstractor path, String filepath, Instant lastScanDate)
                 throws Exception {
-
+        	if(fsSettings.getServer().getProtocol().equals(PROTOCOL.SVN)){
+        		Thread.sleep(3000);//para nao fazer rapido demais e quebrar o SVN
+        	}	
             logger.debug("indexing [{}] content", filepath);
 
             final Collection<FileAbstractModel> children = path.getFiles(filepath);
