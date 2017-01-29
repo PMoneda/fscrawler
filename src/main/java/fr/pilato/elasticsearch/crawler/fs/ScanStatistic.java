@@ -19,6 +19,10 @@
 
 package fr.pilato.elasticsearch.crawler.fs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Provide Scan Statistics
  *
@@ -29,11 +33,13 @@ public class ScanStatistic {
     private int nbDocDeleted = 0;
     private String rootPath;
     private String rootPathId;
+    private HashMap<String,FileStats> files;
 
     public ScanStatistic() {
         this.rootPath = "/";
         this.nbDocScan = 0;
         this.nbDocDeleted = 0;
+        this.setFiles(new HashMap<String,FileStats>());
     }
 
     public ScanStatistic(String rootPath) {
@@ -111,5 +117,26 @@ public class ScanStatistic {
     public void removeFile() {
         this.nbDocDeleted++;
     }
+
+	/**
+	 * @return the files
+	 */
+	public HashMap<String,FileStats> getFiles() {
+		return files;
+	}
+
+	/**
+	 * @param files the files to set
+	 */
+	public void setFiles(HashMap<String,FileStats> files) {
+		this.files = files;
+	}
+	
+	public void addFileStats(FileStats fstats){
+		if (this.files == null){
+			this.files = new HashMap<String,FileStats>();
+		}		
+		this.files.put(fstats.getFileName(),fstats);
+	}
 
 }

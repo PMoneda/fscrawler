@@ -90,7 +90,7 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	}
 	private List<String> listRepos() throws Exception {
 
-		String url = "http://200.189.101.70/svn/";
+		String url = fsSettings.getServer().getHostname();
 
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();

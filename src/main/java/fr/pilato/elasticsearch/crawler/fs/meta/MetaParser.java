@@ -19,6 +19,8 @@
 
 package fr.pilato.elasticsearch.crawler.fs.meta;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -49,6 +51,7 @@ public class MetaParser {
         fscrawler.addDeserializer(TimeValue.class, new TimeValueDeserializer());
         fscrawler.addSerializer(new PercentageSerializer());
         fscrawler.addDeserializer(Percentage.class, new PercentageDeserializer());
+                
 
         mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());

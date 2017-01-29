@@ -354,6 +354,7 @@ public class FsCrawlerImpl {
                     .setLastrun(scanDate)
                     .setIndexed(stats.getNbDocScan())
                     .setDeleted(stats.getNbDocDeleted())
+                    .setFilesIndexed(stats.getFiles())
                     .build();
             fsJobFileHandler.write(jobName, fsJob);
         }
@@ -405,9 +406,18 @@ public class FsCrawlerImpl {
                             fsFiles.add(filename);
                             if (lastScanDate == null
                                     || child.lastModifiedDate.isAfter(lastScanDate)
-                                    || (child.creationDate != null && child.creationDate.isAfter(lastScanDate))) {
+                                    || (child.creationDate != null && child.creationDate.isAfter(lastScanDate))
+                                    || (stats.getFiles() != null && stats.getFiles().containsKey(filename) && stats.getFiles().get(filename).getIndexedAt().isBefore(child.lastModifiedDate))
+                                    || (stats.getFiles() != null && !stats.getFiles().containsKey(filename))) {
                                 indexFile(child, stats, filepath, path.getInputStream(child), child.size);
                                 stats.addFile();
+                                FileStats fs = new FileStats();
+                                fs.setFileName(child.fullpath);
+                                fs.setIndexedAt(Instant.now());
+                                fs.setLastModified(child.lastModifiedDate);
+                                stats.addFileStats(fs);
+                                updateFsJob(fsSettings.getName(), Instant.now());
+                                
                             } else {
                                 logger.debug("    - not modified: creation date {} , file date {}, last scan date {}",
                                         child.creationDate, child.lastModifiedDate, lastScanDate);

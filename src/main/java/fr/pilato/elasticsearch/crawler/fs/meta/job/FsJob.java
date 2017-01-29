@@ -20,6 +20,10 @@
 package fr.pilato.elasticsearch.crawler.fs.meta.job;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+
+import fr.pilato.elasticsearch.crawler.fs.FileStats;
 
 /**
  * Define a FS Job meta data
@@ -30,12 +34,14 @@ public class FsJob {
     private Instant lastrun;
     private long indexed;
     private long deleted;
+    private HashMap<String,FileStats> filesIndexed;
 
     public static class Builder {
         private String name;
         private Instant lastrun;
         private long indexed = 0;
         private long deleted = 0;
+        private HashMap<String,FileStats> filesIndexed;
 
         public Builder setName(String name) {
             this.name = name;
@@ -56,9 +62,13 @@ public class FsJob {
             this.deleted = deleted;
             return this;
         }
+        public Builder setFilesIndexed(HashMap<String,FileStats> files){
+        	this.filesIndexed = files;
+        	return this;
+        }
 
         public FsJob build() {
-            return new FsJob(name, lastrun, indexed, deleted);
+            return new FsJob(name, lastrun, indexed, deleted,filesIndexed);
         }
     }
 
@@ -70,11 +80,12 @@ public class FsJob {
 
     }
 
-    public FsJob(String name, Instant lastrun, long indexed, long deleted) {
+    public FsJob(String name, Instant lastrun, long indexed, long deleted,HashMap<String,FileStats> filesIndexed) {
         this.name = name;
         this.lastrun = lastrun;
         this.indexed = indexed;
         this.deleted = deleted;
+        this.filesIndexed = filesIndexed;
     }
 
     public String getName() {
@@ -131,4 +142,18 @@ public class FsJob {
         result = 31 * result + (int) (deleted ^ (deleted >>> 32));
         return result;
     }
+
+	/**
+	 * @return the filesIndexed
+	 */
+	public HashMap<String,FileStats> getFilesIndexed() {
+		return filesIndexed;
+	}
+
+	/**
+	 * @param filesIndexed the filesIndexed to set
+	 */
+	public void setFilesIndexed(HashMap<String,FileStats> filesIndexed) {
+		this.filesIndexed = filesIndexed;
+	}
 }
