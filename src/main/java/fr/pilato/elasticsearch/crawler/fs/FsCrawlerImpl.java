@@ -406,24 +406,15 @@ public class FsCrawlerImpl {
                         if (child.file) {
                             logger.debug("  - file: {}", filename);
                             fsFiles.add(filename);
-                            if (lastScanDate == null
-                                    || child.lastModifiedDate.isAfter(lastScanDate)
-                                    || (child.creationDate != null && child.creationDate.isAfter(lastScanDate))
-                                    || (stats.getFiles() != null && stats.getFiles().containsKey(filename) && stats.getFiles().get(filename).getIndexedAt().isBefore(child.lastModifiedDate))
-                                    || (stats.getFiles() != null && !stats.getFiles().containsKey(filename))) {
-                                indexFile(child, stats, filepath, path.getInputStream(child), child.size);
-                                stats.addFile();
-                                FileStats fs = new FileStats();
-                                fs.setFileName(child.fullpath);
-                                fs.setIndexedAt(Instant.now());
-                                fs.setLastModified(child.lastModifiedDate);
-                                stats.addFileStats(fs);
-                                updateFsJob(fsSettings.getName(), Instant.now());
-                                
-                            } else {
-                                logger.debug("    - not modified: creation date {} , file date {}, last scan date {}",
-                                        child.creationDate, child.lastModifiedDate, lastScanDate);
-                            }
+                        	Thread.sleep(2000);//para nao fazer rapido demais e quebrar o SVN                            	
+                        	indexFile(child, stats, filepath, path.getInputStream(child), child.size);
+                            stats.addFile();
+                            FileStats fs = new FileStats();
+                            fs.setFileName(child.fullpath);
+                            fs.setIndexedAt(Instant.now());
+                            fs.setLastModified(child.lastModifiedDate);
+                            stats.addFileStats(fs);
+                            updateFsJob(fsSettings.getName(), Instant.now());
                         } else if (child.directory) {
                             logger.debug("  - folder: {}", filename);
                             fsFolders.add(filename);
@@ -446,43 +437,7 @@ public class FsCrawlerImpl {
                 }
             }
 
-            // TODO Optimize
-            // if (path.isDirectory() && path.lastModified() > lastScanDate
-            // && lastScanDate != 0) {
-
-            if (fsSettings.getFs().isRemoveDeleted()) {
-                logger.debug("Looking for removed files in [{}]...", filepath);
-                Collection<String> esFiles = getFileDirectory(filepath);
-
-                // for the delete files
-                for (String esfile : esFiles) {
-                    logger.trace("Checking file [{}]", esfile);
-
-                    if (FsCrawlerUtil.isIndexable(esfile, fsSettings.getFs().getIncludes(), fsSettings.getFs().getExcludes())
-                            && !fsFiles.contains(esfile)) {
-                        File file = new File(filepath, esfile);
-
-                        logger.trace("Removing file [{}] in elasticsearch", esfile);
-                        esDelete(fsSettings.getElasticsearch().getIndex(), fsSettings.getElasticsearch().getType(),
-                                SignTool.sign(file.getAbsolutePath()));
-                        stats.removeFile();
-                    }
-                }
-
-                logger.debug("Looking for removed directories in [{}]...", filepath);
-                Collection<String> esFolders = getFolderDirectory(filepath);
-
-                // for the delete folder
-                for (String esfolder : esFolders) {
-                    if (FsCrawlerUtil.isIndexable(esfolder, fsSettings.getFs().getIncludes(), fsSettings.getFs().getExcludes())) {
-                        logger.trace("Checking directory [{}]", esfolder);
-                        if (!fsFolders.contains(esfolder)) {
-                            logger.trace("Removing recursively directory [{}] in elasticsearch", esfolder);
-                            removeEsDirectoryRecursively(filepath, esfolder);
-                        }
-                    }
-                }
-            }
+            
         }
 
         // TODO Optimize it. We can probably use a search for a big array of filenames instead of

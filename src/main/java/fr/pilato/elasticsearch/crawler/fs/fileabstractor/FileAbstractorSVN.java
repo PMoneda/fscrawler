@@ -90,6 +90,7 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	}
 	private List<String> listRepos() throws Exception {
 
+		try{
 		String url = fsSettings.getServer().getHostname();
 
 		URL obj = new URL(url);
@@ -130,6 +131,10 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 			
 		}
 		return repos;
+		}catch(Exception e){
+			return new ArrayList<String>();
+		}
+		
 
 	}
 	@Override
@@ -153,7 +158,7 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	            logger.info(p);
 	            if(entry.getKind() == SVNNodeKind.DIR){
 	            	//FIXME melhorar a parte de regex
-	            	if(!p.endsWith("branches") && !p.endsWith("tags") && !p.endsWith("0.SMSR") && !p.endsWith("/src") ){
+	            	if(p.contains("/trunk") && !p.contains("/src")){
 	            		//logger.info("------------------------------------------");
 	            		logger.info("Diretorio indexado");
 	            		//logger.info(entry.getName());
