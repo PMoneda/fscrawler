@@ -135,7 +135,7 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	@Override
 	public Collection<FileAbstractModel> getFiles(String path) throws Exception {
 		Collection<FileAbstractModel> files = new LinkedList<FileAbstractModel>();
-		if(path.equals("/")){
+		if(path.equals("/") && fsSettings.getServer().getHostname().endsWith("/svn/")){
 			List<String> repos = listRepos();
 			for (String repo : repos) {
 				files.add(toFileAbstractModel(repo, null));
@@ -152,7 +152,8 @@ public class FileAbstractorSVN extends FileAbstractor<SVNDirEntry> {
 	            String p = (path+"/"+entry.getName()).replaceAll("//","/");
 	            logger.info(p);
 	            if(entry.getKind() == SVNNodeKind.DIR){
-	            	if(FsCrawlerUtil.isIndexable(p, fsSettings.getFs().getIncludesDir(), fsSettings.getFs().getExcludes())){
+	            	//FIXME melhorar a parte de regex
+	            	if(!p.endsWith("branches") && !p.endsWith("tags") && !p.endsWith("0.SMSR") && !p.endsWith("/src") ){
 	            		//logger.info("------------------------------------------");
 	            		logger.info("Diretorio indexado");
 	            		//logger.info(entry.getName());
