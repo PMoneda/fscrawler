@@ -19,6 +19,7 @@
 
 package fr.pilato.elasticsearch.crawler.fs.fileabstractor; 
 
+import fr.pilato.elasticsearch.crawler.fs.ScanStatistic;
 import fr.pilato.elasticsearch.crawler.fs.meta.settings.FsSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,4 +47,8 @@ public abstract class FileAbstractor<T> {
     public FileAbstractor(FsSettings fsSettings) {
         this.fsSettings = fsSettings;
     }
+
+	public  Collection<FileAbstractModel> getFiles(String filepath, ScanStatistic stats) throws Exception{
+		return null;
+	}
 }

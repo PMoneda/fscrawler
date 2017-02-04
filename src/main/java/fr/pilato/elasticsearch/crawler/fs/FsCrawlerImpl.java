@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -270,6 +271,7 @@ public class FsCrawlerImpl {
                 try {
                     logger.debug("Fs crawler thread [{}] is now running. Run #{}...", fsSettings.getName(), run);
                     stats = new ScanStatistic(fsSettings.getFs().getUrl());
+                    stats.setFiles(getLastIndexed(fsSettings.getName()));
 
                     path = buildFileAbstractor();
                     path.open();
@@ -331,7 +333,18 @@ public class FsCrawlerImpl {
         private Instant getLastDateFromMeta(String jobName) throws IOException {
             try {
                 FsJob fsJob = fsJobFileHandler.read(jobName);
+               
                 return fsJob.getLastrun();
+            } catch (NoSuchFileException e) {
+                // The file does not exist yet
+            }
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        private HashMap<String, FileStats> getLastIndexed(String jobName) throws IOException {
+            try {
+                FsJob fsJob = fsJobFileHandler.read(jobName);               
+                return fsJob.getFilesIndexed();
             } catch (NoSuchFileException e) {
                 // The file does not exist yet
             }
@@ -383,8 +396,13 @@ public class FsCrawlerImpl {
         		Thread.sleep(3000);//para nao fazer rapido demais e quebrar o SVN
         	}	
             logger.debug("indexing [{}] content", filepath);
-
-            final Collection<FileAbstractModel> children = path.getFiles(filepath);
+            Collection<FileAbstractModel> children = null;
+            if(isSVN()){
+            	children = path.getFiles(filepath,stats);
+            }else{
+            	children = path.getFiles(filepath);
+            }
+            
             Collection<String> fsFiles = new ArrayList<>();
             Collection<String> fsFolders = new ArrayList<>();
 

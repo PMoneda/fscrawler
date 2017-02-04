@@ -138,5 +138,13 @@ public class ScanStatistic {
 		}		
 		this.files.put(fstats.getFileName(),fstats);
 	}
+	
+	public FileStats getFileStats(String key){
+		if(this.files != null && this.files.containsKey(key)){
+			return  this.files.get(key);
+		}else{
+			return null;
+		}
+	}
 
 }
